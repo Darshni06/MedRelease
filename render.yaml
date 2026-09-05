@@ -1,0 +1,60 @@
+# Render Blueprint for MedRelease.
+# Deploy both services at once from the Render dashboard via
+# "New +" -> "Blueprint", pointing at the root of this repository.
+databases:
+  - name: medrelease-db
+    plan: free
+    databaseName: medrelease
+    user: medrelease
+
+services:
+  # ---------------- Backend: FastAPI web service ----------------
+  - type: web
+    name: medrelease-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: APP_NAME
+        value: MedRelease
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medrelease-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: CORS_ORIGINS
+        value: "https://medrelease-frontend.onrender.com"
+      - key: GITHUB_MODE
+        value: demo
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_REPO_OWNER
+        value: medrelease-demo
+      - key: GITHUB_REPO_NAME
+        value: hospital-management-system
+      - key: AUTO_SEED
+        value: "true"
+
+  # ---------------- Frontend: static React build ----------------
+  - type: web
+    name: medrelease-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: dist
+    pullRequestPreviewsEnabled: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: "https://medrelease-backend.onrender.com"

@@ -12,7 +12,7 @@ from app.schemas.schemas import (
     RegisterRequest,
     LoginRequest,
     TokenResponse,
-    UserRead,
+    UserRead,  # ✅ This is the correct import
     ForgotPasswordRequest,
     ResetPasswordRequest,
 )

@@ -1,7 +1,16 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, ConfigDict, Field
 
-
+class UserRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    email: str
+    full_name: str
+    is_active: bool
+    is_admin: bool
+    created_at: datetime
+    memberships: list[MembershipRead] = []
+    
 # ---------- Auth ----------
 class RegisterRequest(BaseModel):
     email: EmailStr
@@ -39,18 +48,6 @@ class MembershipRead(BaseModel):
     organization_name: str | None = None
     user_email: str | None = None
     user_name: str | None = None
-
-
-class UserRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int
-    email: str
-    full_name: str
-    is_active: bool
-    is_admin: bool
-    created_at: datetime
-    memberships: list[MembershipRead] = []
-
 
 class MembershipCreate(BaseModel):
     email: EmailStr

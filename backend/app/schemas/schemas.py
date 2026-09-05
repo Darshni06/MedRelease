@@ -1,6 +1,19 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, ConfigDict, Field
 
+
+# ---------- Users / Memberships ----------
+class MembershipRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    organization_id: int
+    user_id: int
+    role: str
+    organization_name: str | None = None
+    user_email: str | None = None
+    user_name: str | None = None
+
+    
 class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -10,7 +23,7 @@ class UserRead(BaseModel):
     is_admin: bool
     created_at: datetime
     memberships: list[MembershipRead] = []
-    
+
 # ---------- Auth ----------
 class RegisterRequest(BaseModel):
     email: EmailStr
@@ -37,17 +50,6 @@ class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str = Field(min_length=6)
 
-
-# ---------- Users / Memberships ----------
-class MembershipRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int
-    organization_id: int
-    user_id: int
-    role: str
-    organization_name: str | None = None
-    user_email: str | None = None
-    user_name: str | None = None
 
 class MembershipCreate(BaseModel):
     email: EmailStr
